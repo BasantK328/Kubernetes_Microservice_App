@@ -1,58 +1,3 @@
-# name: CI/CD for Flask K8s App
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     # 1️⃣ Checkout code
-#     - name: Checkout code
-#       uses: actions/checkout@v3
-
-#     # 2️⃣ Set up Docker Buildx
-#     - name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v2
-
-#     # 3️⃣ Log in to Docker Hub
-#     - name: Log in to Docker Hub
-#       uses: docker/login-action@v2
-#       with:
-#         username: ${{ secrets.DOCKER_USERNAME }}
-#         password: ${{ secrets.DOCKER_PASSWORD }}
-
-#     # 4️⃣ Build and push image
-#     - name: Build and push image
-#       run: |
-#         IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest
-#         docker build -t $IMAGE_NAME .
-#         docker push $IMAGE_NAME
-
-#     # 5️⃣ Set up kubectl
-#     - name: Set up kubectl
-#       uses: azure/setup-kubectl@v3
-#       with:
-#         version: 'latest'
-
-#     # 6️⃣ Configure Kubeconfig
-#     - name: Configure Kubeconfig
-#       run: |
-#         mkdir -p ~/.kube
-#         echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
-
-#     # 7️⃣ Update deployment image
-#     - name: Update Kubernetes deployment
-#       run: |
-#         kubectl set image deployment/flask-k8s \
-#           flask=${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest
-#         kubectl rollout status deployment/flask-k8s
-
-
-
 name: Build and Push Docker Image
 
 on:
@@ -64,27 +9,61 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo
       - uses: actions/checkout@v4
 
-      # Set up QEMU for cross-platform builds (optional but good practice)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      # Set up Docker Buildx (extended build capabilities)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Login to Docker Hub
-      - name: Login to DockerHub
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Build and push Docker image
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-k8s-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest
+
+
+
+
+# name: Build and Push Docker Image
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       # Checkout repo
+#       - uses: actions/checkout@v4
+
+#       # Set up QEMU for cross-platform builds (optional but good practice)
+#       - name: Set up QEMU
+#         uses: docker/setup-qemu-action@v2
+
+#       # Set up Docker Buildx (extended build capabilities)
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+
+#       # Login to Docker Hub
+#       - name: Login to DockerHub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       # Build and push Docker image
+#       - name: Build and push
+#         uses: docker/build-push-action@v4
+#         with:
+#           push: true
+#           tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-k8s-app:latest
