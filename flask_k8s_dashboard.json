@@ -1,0 +1,61 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Flask K8s Monitoring",
+    "tags": ["flask", "k8s", "prometheus"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Total HTTP Requests",
+        "targets": [
+          {
+            "expr": "sum(app_requests_total)",
+            "legendFormat": "Total Requests",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8}
+      },
+      {
+        "type": "graph",
+        "title": "In-progress Requests",
+        "targets": [
+          {
+            "expr": "sum(app_inprogress_requests)",
+            "legendFormat": "In-progress",
+            "refId": "B"
+          }
+        ],
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8}
+      },
+      {
+        "type": "graph",
+        "title": "Pod CPU Usage (millicores)",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[1m])) by (pod)",
+            "legendFormat": "{{pod}}",
+            "refId": "C"
+          }
+        ],
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8}
+      },
+      {
+        "type": "graph",
+        "title": "Pod Memory Usage (MB)",
+        "targets": [
+          {
+            "expr": "sum(container_memory_usage_bytes{image!=\"\"}) by (pod) / 1024 / 1024",
+            "legendFormat": "{{pod}}",
+            "refId": "D"
+          }
+        ],
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8}
+      }
+    ]
+  },
+  "overwrite": false
+}
