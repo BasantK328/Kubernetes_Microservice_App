@@ -9,7 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Debug Docker Username
+        run: |
+          echo "Using Docker username: ${{ secrets.DOCKER_USERNAME }}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -23,7 +28,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           push: true
