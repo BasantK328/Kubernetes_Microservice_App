@@ -1,4 +1,4 @@
-name: CI/CD - Build, Push & Deploy
+name: CI/CD - Minikube Build, Push & Deploy
 
 on:
   push:
@@ -28,27 +28,23 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build and push Docker image
+      # Step 5: Start Minikube
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          kubernetes-version: v1.30.0
+          driver: docker
+
+      # Step 6: Build Docker image inside Minikube
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest
-
-      # Step 6: Set up kubectl
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      # Step 7: Configure Kubeconfig (requires secret)
-      - name: Configure kubeconfig
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+          eval $(minikube docker-env)
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest
 
-      # Step 8: Deploy new image to Kubernetes
-      - name: Deploy to Kubernetes
+      # Step 7: Apply Kubernetes manifests
+      - name: Deploy to Minikube
         run: |
+          kubectl apply -f k8s/
           kubectl set image deployment/flask-k8s flask=${{ secrets.DOCKER_USERNAME }}/flask-k8s-app:latest
           kubectl rollout status deployment/flask-k8s
